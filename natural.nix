@@ -4,7 +4,7 @@
 }:
 mkDerivation {
   pname = "natural";
-  version = "0.1.0.0";
+  version = "0.1.0.1";
   src = ./.;
   libraryHaskellDepends = [ base lens ];
   testHaskellDepends = [
