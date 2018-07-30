@@ -12,6 +12,8 @@ module Natural(
 , MinNatural(..)
 , zero
 , zero'
+, one
+, one'
 , successor
 , successor'
 , length
@@ -24,11 +26,13 @@ module Natural(
 , findIndex
 , elemIndices
 , elemIndex
+, minus
+, list
 ) where
 
 import Control.Applicative(Const)
 import Control.Category((.), id)
-import Control.Lens(Wrapped(_Wrapped', Unwrapped), Rewrapped, Prism', Lens', (^?), ( # ), _Wrapped, prism', iso)
+import Control.Lens(Wrapped(_Wrapped', Unwrapped), Rewrapped, Prism', Lens', Iso', (^?), ( # ), _Wrapped, prism', iso)
 import Control.Monad((>>=))
 import Data.Bool(Bool)
 import Data.Eq(Eq((==)))
@@ -211,6 +215,20 @@ zero' ::
 zero' =
   zero # ()
 
+one ::
+  Prism'
+    Natural
+    ()
+one =
+  prism'
+    (\() -> Natural 1)
+    (\(Natural n) -> if n == 1 then Nothing else Just ())
+
+one' ::
+  Natural
+one' =
+  one # ()
+
 successor ::
   Prism'
     Natural
@@ -311,3 +329,19 @@ elemIndex ::
   -> Maybe Natural
 elemIndex =
   findIndex . (==)
+
+minus ::
+  Natural
+  -> Natural
+  -> Natural
+minus (Natural x) (Natural y) =
+  Natural (if x < y then 0 else x - y)
+
+list ::
+  Iso'
+    Natural
+    [()]
+list =
+  iso
+    (\n -> replicate n ())
+    length
