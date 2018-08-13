@@ -1,3 +1,8 @@
+0.2.0.2
+
+* change `data Natural` to have a minimum bound of 1.
+* add `data Whole` which has a minimum bound of 0.
+
 0.1.0.2
 
 * add `minus` function.
