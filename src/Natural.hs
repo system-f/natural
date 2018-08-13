@@ -233,7 +233,7 @@ zero ::
 zero =
   prism'
     (\() -> Whole 0)
-    (\(Whole n) -> if n == 0 then Nothing else Just ())
+    (\(Whole n) -> if n == 0 then Just () else Nothing)
 
 zero' ::
   Whole
@@ -512,7 +512,7 @@ one ::
 one =
   prism'
     (\() -> Natural 1)
-    (\(Natural n) -> if n == 1 then Nothing else Just ())
+    (\(Natural n) -> if n == 1 then Just () else Nothing)
 
 one' ::
   Natural
