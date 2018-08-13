@@ -4,12 +4,12 @@
 {-# LANGUAGE TypeFamilies #-}
 
 module Natural (
-  Whole
-, HasWhole(..)
-, AsWhole(..)
-, ProductWhole(..)
-, MaxWhole(..)
-, MinWhole(..)
+  Natural
+, HasNatural(..)
+, AsNatural(..)
+, ProductNatural(..)
+, MaxNatural(..)
+, MinNatural(..)
 , zero
 , zero'
 , successor
@@ -26,12 +26,12 @@ module Natural (
 , elemIndex
 , minus
 , list
-, Natural
-, HasNatural(..)
-, AsNatural(..)
-, SumNatural(..)
-, MaxNatural(..)
-, MinNatural(..)
+, Positive
+, HasPositive(..)
+, AsPositive(..)
+, SumPositive(..)
+, MaxPositive(..)
+, MinPositive(..)
 , one
 , one'
 , successor1
@@ -74,291 +74,6 @@ import Data.Tuple(fst, snd)
 import Data.Word(Word)
 import Prelude(Show, Integral, Integer, (-), (+), (*), fromIntegral)
 
-newtype Whole =
-  Whole
-    Integer
-  deriving (Eq, Ord, Show)
-
-instance Semigroup Whole where
-  Whole x <> Whole y =
-    Whole (x + y)
-
-instance Monoid Whole where
-  mappend =
-    (<>)
-  mempty =
-    Whole 0
-
-class HasWhole a where
-  whole ::
-    Lens'
-      a
-      Whole
-
-instance HasWhole Whole where
-  whole =
-    id
-
-class AsWhole a where
-  _Whole ::
-    Prism'
-      a
-      Whole
-
-instance AsWhole Whole where
-  _Whole =
-    id
-
-integralPrism ::
-  Integral a =>
-  Prism'
-    a
-    Whole
-integralPrism =
-  prism'
-    (\(Whole n) -> fromIntegral n)
-    (\n -> if n < 0 then Nothing else Just (Whole (fromIntegral n)))
-
-instance AsWhole Int where
-  _Whole =
-    integralPrism
-
-instance AsWhole Integer where
-  _Whole =
-    integralPrism
-
-instance AsWhole Word where
-  _Whole =
-    integralPrism
-
-instance Integral a => AsWhole (Const a b) where
-  _Whole =
-    integralPrism
-
-instance Integral a => AsWhole (Identity a) where
-  _Whole =
-    integralPrism
-
-newtype ProductWhole =
-  ProductWhole
-    Whole
-  deriving (Eq, Ord, Show)
-
-instance HasWhole ProductWhole where
-  whole =
-    _Wrapped . whole
-
-instance AsWhole ProductWhole where
-  _Whole =
-    _Wrapped . _Whole
-
-instance ProductWhole ~ a =>
-  Rewrapped ProductWhole a
-  
-instance Wrapped ProductWhole where
-  type Unwrapped ProductWhole = Whole
-  _Wrapped' =
-    iso
-      (\(ProductWhole x) -> x)
-      ProductWhole
-
-instance Semigroup ProductWhole where
-  ProductWhole (Whole x) <> ProductWhole (Whole y) =
-    ProductWhole (Whole (x * y))
-
-instance Monoid ProductWhole where
-  mappend =
-    (<>)
-  mempty =
-    ProductWhole (Whole 1)
-
-newtype MaxWhole =
-  MaxWhole
-    Whole
-  deriving (Eq, Ord, Show)
-
-instance HasWhole MaxWhole where
-  whole =
-    _Wrapped . whole
-
-instance AsWhole MaxWhole where
-  _Whole =
-    _Wrapped . _Whole
-
-instance MaxWhole ~ a =>
-  Rewrapped MaxWhole a
-  
-instance Wrapped MaxWhole where
-  type Unwrapped MaxWhole = Whole
-  _Wrapped' =
-    iso
-      (\(MaxWhole x) -> x)
-      MaxWhole
-
-instance Semigroup MaxWhole where
-  MaxWhole (Whole x) <> MaxWhole (Whole y) =
-    MaxWhole (Whole (x `max` y))
-
-newtype MinWhole =
-  MinWhole
-    Whole
-  deriving (Eq, Ord, Show)
-
-instance HasWhole MinWhole where
-  whole =
-    _Wrapped . whole
-
-instance AsWhole MinWhole where
-  _Whole =
-    _Wrapped . _Whole
-
-instance MinWhole ~ a =>
-  Rewrapped MinWhole a
-  
-instance Wrapped MinWhole where
-  type Unwrapped MinWhole = Whole
-  _Wrapped' =
-    iso
-      (\(MinWhole x) -> x)
-      MinWhole
-
-instance Semigroup MinWhole where
-  MinWhole (Whole x) <> MinWhole (Whole y) =
-    MinWhole (Whole (x `min` y))
-
-zero ::
-  Prism'
-    Whole
-    ()
-zero =
-  prism'
-    (\() -> Whole 0)
-    (\(Whole n) -> if n == 0 then Just () else Nothing)
-
-zero' ::
-  Whole
-zero' =
-  zero # ()
-
-successor ::
-  Prism'
-    Whole
-    Whole
-successor =
-  prism'
-    (\(Whole n) -> Whole (n + 1))
-    (\(Whole n) -> if n == 0 then Nothing else Just (Whole (n - 1)))
-
-successor' ::
-  Whole
-  -> Whole
-successor' =
-  (successor #)
-
-length ::
-  Foldable f =>
-  f a
-  -> Whole
-length =
-  foldl (const . successor') zero'
-
-replicate ::
-  Whole
-  -> a
-  -> [a]
-replicate n =
-  take n . repeat
-
-take ::
-  Whole
-  -> [a]
-  -> [a]
-take _ [] =
-  []
-take n (h:t) =
-  case n ^? successor of
-    Nothing ->
-      []
-    Just p ->
-      h : take p t
-
-drop ::
-  Whole
-  -> [a]
-  -> [a]
-drop _ [] =
-  []
-drop n (h:t) =
-  case n ^? successor of
-    Nothing ->
-      h:t
-    Just p ->
-      drop p t
-
-splitAt ::
-  Whole
-  -> [a]
-  -> ([a], [a])
-splitAt n x =
-  (take n x, drop n x)
-
-(!!) ::
-  [a]
-  -> Whole
-  -> Maybe a
-[] !! _ =
-  Nothing
-(_:t) !! n =
-  (n ^? successor) >>= (t !!)
-
-findIndices ::
-  (a -> Bool)
-  -> [a]
-  -> [Whole]
-findIndices p x =
-  map snd (filter (p . fst) (zip x (iterate successor' zero')))
-
-findIndex ::
-  (a -> Bool)
-  -> [a]
-  -> Maybe Whole
-findIndex p =
-  listToMaybe . findIndices p
-
-elemIndices ::
-  Eq a =>
-  a
-  -> [a]
-  -> [Whole]
-elemIndices =
-  findIndices . (==)
-
-elemIndex ::
-  Eq a =>
-  a
-  -> [a]
-  -> Maybe Whole
-elemIndex =
-  findIndex . (==)
-
-minus ::
-  Whole
-  -> Whole
-  -> Whole
-minus (Whole x) (Whole y) =
-  Whole (if x < y then 0 else x - y)
-
-list ::
-  Iso'
-    Whole
-    [()]
-list =
-  iso
-    (\n -> replicate n ())
-    length
-
-----
-
 newtype Natural =
   Natural
     Integer
@@ -394,62 +109,68 @@ instance AsNatural Natural where
   _Natural =
     id
 
-integralPrism1 ::
+integralPrism ::
   Integral a =>
   Prism'
     a
     Natural
-integralPrism1 =
+integralPrism =
   prism'
     (\(Natural n) -> fromIntegral n)
-    (\n -> if n < 1 then Nothing else Just (Natural (fromIntegral n)))
+    (\n -> if n < 0 then Nothing else Just (Natural (fromIntegral n)))
 
 instance AsNatural Int where
   _Natural =
-    integralPrism1
+    integralPrism
 
 instance AsNatural Integer where
   _Natural =
-    integralPrism1
+    integralPrism
 
 instance AsNatural Word where
   _Natural =
-    integralPrism1
+    integralPrism
 
 instance Integral a => AsNatural (Const a b) where
   _Natural =
-    integralPrism1
+    integralPrism
 
 instance Integral a => AsNatural (Identity a) where
   _Natural =
-    integralPrism1
+    integralPrism
 
-newtype SumNatural =
-  SumNatural
+newtype ProductNatural =
+  ProductNatural
     Natural
   deriving (Eq, Ord, Show)
 
-instance HasNatural SumNatural where
+instance HasNatural ProductNatural where
   natural =
     _Wrapped . natural
 
-instance AsNatural SumNatural where
+instance AsNatural ProductNatural where
   _Natural =
     _Wrapped . _Natural
 
-instance SumNatural ~ a =>
-  Rewrapped SumNatural a
+instance ProductNatural ~ a =>
+  Rewrapped ProductNatural a
   
-instance Wrapped SumNatural where
-  type Unwrapped SumNatural = Natural
+instance Wrapped ProductNatural where
+  type Unwrapped ProductNatural = Natural
   _Wrapped' =
     iso
-      (\(SumNatural x) -> x)
-      SumNatural
+      (\(ProductNatural x) -> x)
+      ProductNatural
 
-instance Semigroup SumNatural where
-  SumNatural (Natural x) <> SumNatural (Natural y) =
-    SumNatural (Natural (x + y))
+instance Semigroup ProductNatural where
+  ProductNatural (Natural x) <> ProductNatural (Natural y) =
+    ProductNatural (Natural (x * y))
+
+instance Monoid ProductNatural where
+  mappend =
+    (<>)
+  mempty =
+    ProductNatural (Natural 1)
 
 newtype MaxNatural =
   MaxNatural
@@ -505,83 +226,362 @@ instance Semigroup MinNatural where
   MinNatural (Natural x) <> MinNatural (Natural y) =
     MinNatural (Natural (x `min` y))
 
-one ::
+zero ::
   Prism'
     Natural
     ()
+zero =
+  prism'
+    (\() -> Natural 0)
+    (\(Natural n) -> if n == 0 then Just () else Nothing)
+
+zero' ::
+  Natural
+zero' =
+  zero # ()
+
+successor ::
+  Prism'
+    Natural
+    Natural
+successor =
+  prism'
+    (\(Natural n) -> Natural (n + 1))
+    (\(Natural n) -> if n == 0 then Nothing else Just (Natural (n - 1)))
+
+successor' ::
+  Natural
+  -> Natural
+successor' =
+  (successor #)
+
+length ::
+  Foldable f =>
+  f a
+  -> Natural
+length =
+  foldl (const . successor') zero'
+
+replicate ::
+  Natural
+  -> a
+  -> [a]
+replicate n =
+  take n . repeat
+
+take ::
+  Natural
+  -> [a]
+  -> [a]
+take _ [] =
+  []
+take n (h:t) =
+  case n ^? successor of
+    Nothing ->
+      []
+    Just p ->
+      h : take p t
+
+drop ::
+  Natural
+  -> [a]
+  -> [a]
+drop _ [] =
+  []
+drop n (h:t) =
+  case n ^? successor of
+    Nothing ->
+      h:t
+    Just p ->
+      drop p t
+
+splitAt ::
+  Natural
+  -> [a]
+  -> ([a], [a])
+splitAt n x =
+  (take n x, drop n x)
+
+(!!) ::
+  [a]
+  -> Natural
+  -> Maybe a
+[] !! _ =
+  Nothing
+(_:t) !! n =
+  (n ^? successor) >>= (t !!)
+
+findIndices ::
+  (a -> Bool)
+  -> [a]
+  -> [Natural]
+findIndices p x =
+  map snd (filter (p . fst) (zip x (iterate successor' zero')))
+
+findIndex ::
+  (a -> Bool)
+  -> [a]
+  -> Maybe Natural
+findIndex p =
+  listToMaybe . findIndices p
+
+elemIndices ::
+  Eq a =>
+  a
+  -> [a]
+  -> [Natural]
+elemIndices =
+  findIndices . (==)
+
+elemIndex ::
+  Eq a =>
+  a
+  -> [a]
+  -> Maybe Natural
+elemIndex =
+  findIndex . (==)
+
+minus ::
+  Natural
+  -> Natural
+  -> Natural
+minus (Natural x) (Natural y) =
+  Natural (if x < y then 0 else x - y)
+
+list ::
+  Iso'
+    Natural
+    [()]
+list =
+  iso
+    (\n -> replicate n ())
+    length
+
+----
+
+newtype Positive =
+  Positive
+    Integer
+  deriving (Eq, Ord, Show)
+
+instance Semigroup Positive where
+  Positive x <> Positive y =
+    Positive (x + y)
+
+instance Monoid Positive where
+  mappend =
+    (<>)
+  mempty =
+    Positive 0
+
+class HasPositive a where
+  positive ::
+    Lens'
+      a
+      Positive
+
+instance HasPositive Positive where
+  positive =
+    id
+
+class AsPositive a where
+  _Positive ::
+    Prism'
+      a
+      Positive
+
+instance AsPositive Positive where
+  _Positive =
+    id
+
+integralPrism1 ::
+  Integral a =>
+  Prism'
+    a
+    Positive
+integralPrism1 =
+  prism'
+    (\(Positive n) -> fromIntegral n)
+    (\n -> if n < 1 then Nothing else Just (Positive (fromIntegral n)))
+
+instance AsPositive Int where
+  _Positive =
+    integralPrism1
+
+instance AsPositive Integer where
+  _Positive =
+    integralPrism1
+
+instance AsPositive Word where
+  _Positive =
+    integralPrism1
+
+instance Integral a => AsPositive (Const a b) where
+  _Positive =
+    integralPrism1
+
+instance Integral a => AsPositive (Identity a) where
+  _Positive =
+    integralPrism1
+
+newtype SumPositive =
+  SumPositive
+    Positive
+  deriving (Eq, Ord, Show)
+
+instance HasPositive SumPositive where
+  positive =
+    _Wrapped . positive
+
+instance AsPositive SumPositive where
+  _Positive =
+    _Wrapped . _Positive
+
+instance SumPositive ~ a =>
+  Rewrapped SumPositive a
+  
+instance Wrapped SumPositive where
+  type Unwrapped SumPositive = Positive
+  _Wrapped' =
+    iso
+      (\(SumPositive x) -> x)
+      SumPositive
+
+instance Semigroup SumPositive where
+  SumPositive (Positive x) <> SumPositive (Positive y) =
+    SumPositive (Positive (x + y))
+
+newtype MaxPositive =
+  MaxPositive
+    Positive
+  deriving (Eq, Ord, Show)
+
+instance HasPositive MaxPositive where
+  positive =
+    _Wrapped . positive
+
+instance AsPositive MaxPositive where
+  _Positive =
+    _Wrapped . _Positive
+
+instance MaxPositive ~ a =>
+  Rewrapped MaxPositive a
+  
+instance Wrapped MaxPositive where
+  type Unwrapped MaxPositive = Positive
+  _Wrapped' =
+    iso
+      (\(MaxPositive x) -> x)
+      MaxPositive
+
+instance Semigroup MaxPositive where
+  MaxPositive (Positive x) <> MaxPositive (Positive y) =
+    MaxPositive (Positive (x `max` y))
+
+newtype MinPositive =
+  MinPositive
+    Positive
+  deriving (Eq, Ord, Show)
+
+instance HasPositive MinPositive where
+  positive =
+    _Wrapped . positive
+
+instance AsPositive MinPositive where
+  _Positive =
+    _Wrapped . _Positive
+
+instance MinPositive ~ a =>
+  Rewrapped MinPositive a
+  
+instance Wrapped MinPositive where
+  type Unwrapped MinPositive = Positive
+  _Wrapped' =
+    iso
+      (\(MinPositive x) -> x)
+      MinPositive
+
+instance Semigroup MinPositive where
+  MinPositive (Positive x) <> MinPositive (Positive y) =
+    MinPositive (Positive (x `min` y))
+
+one ::
+  Prism'
+    Positive
+    ()
 one =
   prism'
-    (\() -> Natural 1)
-    (\(Natural n) -> if n == 1 then Just () else Nothing)
+    (\() -> Positive 1)
+    (\(Positive n) -> if n == 1 then Just () else Nothing)
 
 one' ::
-  Natural
+  Positive
 one' =
   one # ()
 
 successor1 ::
   Prism'
-    Natural
-    Natural
+    Positive
+    Positive
 successor1 =
   prism'
-    (\(Natural n) -> Natural (n + 1))
-    (\(Natural n) -> if n == 1 then Nothing else Just (Natural (n - 1)))
+    (\(Positive n) -> Positive (n + 1))
+    (\(Positive n) -> if n == 1 then Nothing else Just (Positive (n - 1)))
 
 successor1' ::
-  Natural
-  -> Natural
+  Positive
+  -> Positive
 successor1' =
   (successor1 #)
 
 successorW ::
   Iso'
-    Whole
     Natural
+    Positive
 successorW =
   iso
-    (\(Whole n) -> Natural (n + 1))
-    (\(Natural n) -> Whole (n - 1))
+    (\(Natural n) -> Positive (n + 1))
+    (\(Positive n) -> Natural (n - 1))
 
 notZero ::
   Prism'
-    Whole
     Natural
+    Positive
 notZero =
   prism'
-    (\(Natural n) -> Whole n)
-    (\(Whole n) -> if n == 0 then Nothing else Just (Natural n))
+    (\(Positive n) -> Natural n)
+    (\(Natural n) -> if n == 0 then Nothing else Just (Positive n))
 
 length1 ::
   Foldable1 f =>
   f a
-  -> Natural
+  -> Positive
 length1 x =
-  foldMap1 (const (SumNatural one')) x ^. _Wrapped
+  foldMap1 (const (SumPositive one')) x ^. _Wrapped
 
 replicate1 ::
-  Natural
+  Positive
   -> a
   -> NonEmpty a
 replicate1 n a =
   take1 n (a :| repeat a)
 
 take1 ::
-  Natural
+  Positive
   -> NonEmpty a
   -> NonEmpty a
 take1 n (h:|t) =
   h :| take (successorW # n) t
 
 drop1 ::
-  Natural
+  Positive
   -> NonEmpty a
   -> [a]
 drop1 n (_:|t) =
   drop (successorW # n) t
 
 splitAt1 ::
-  Natural
+  Positive
   -> NonEmpty a
   -> (NonEmpty a, [a])
 splitAt1 n x =
@@ -589,7 +589,7 @@ splitAt1 n x =
 
 (!!!) ::
   NonEmpty a
-  -> Natural
+  -> Positive
   -> Maybe a
 (_:|t) !!! n =
   t !! (successorW # n)
@@ -597,14 +597,14 @@ splitAt1 n x =
 findIndices1 ::
   (a -> Bool)
   -> NonEmpty a
-  -> [Natural]
+  -> [Positive]
 findIndices1 p x =
   map snd (NonEmpty.filter (p . fst) (NonEmpty.zip x (NonEmpty.iterate successor1' one')))
   
 findIndex1 ::
   (a -> Bool)
   -> NonEmpty a
-  -> Maybe Natural
+  -> Maybe Positive
 findIndex1 p =
   listToMaybe . findIndices1 p
 
@@ -612,7 +612,7 @@ elemIndices1 ::
   Eq a =>
   a
   -> NonEmpty a
-  -> [Natural]
+  -> [Positive]
 elemIndices1 =
   findIndices1 . (==)
 
@@ -620,20 +620,20 @@ elemIndex1 ::
   Eq a =>
   a
   -> NonEmpty a
-  -> Maybe Natural
+  -> Maybe Positive
 elemIndex1 =
   findIndex1 . (==)
 
 minus1 ::
-  Natural
-  -> Natural
-  -> Natural
-minus1 (Natural x) (Natural y) =
-  Natural (if x < y then 1 else x - y)
+  Positive
+  -> Positive
+  -> Positive
+minus1 (Positive x) (Positive y) =
+  Positive (if x < y then 1 else x - y)
 
 list1 ::
   Iso'
-    Natural
+    Positive
     (NonEmpty ())
 list1 =
   iso

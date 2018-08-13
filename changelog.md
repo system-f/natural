@@ -1,3 +1,9 @@
+0.3.0.2
+
+* fix bug in `zero` and `one` prisms.
+* rename `Natural` to `Positive`.
+* rename `Whole` to `Natural`.
+
 0.2.0.2
 
 * change `data Natural` to have a minimum bound of 1.
