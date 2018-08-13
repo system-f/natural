@@ -7,32 +7,24 @@ module Natural(
   Natural
 , HasNatural(..)
 , AsNatural(..)
-, ProductNatural(..)
 , MaxNatural(..)
 , MinNatural(..)
-, zero
-, zero'
 , one
 , one'
 , successor
 , successor'
-, length
 , replicate
 , take
 , drop
 , splitAt
 , (!!)
-, findIndices
-, findIndex
-, elemIndices
-, elemIndex
 , minus
-, list
+, list1
 ) where
 
 import Control.Applicative(Const)
 import Control.Category((.), id)
-import Control.Lens(Wrapped(_Wrapped', Unwrapped), Rewrapped, Prism', Lens', Iso', (^?), ( # ), _Wrapped, prism', iso)
+import Control.Lens(Wrapped(_Wrapped', Unwrapped), Rewrapped, Prism', Lens', Iso', (^?), (^.), ( # ), _Wrapped, prism', iso)
 import Control.Monad((>>=))
 import Data.Bool(Bool)
 import Data.Eq(Eq((==)))
@@ -41,13 +33,16 @@ import Data.Function(const)
 import Data.Functor.Identity(Identity)
 import Data.Int(Int)
 import Data.List(iterate, zip, filter, map, repeat)
+import Data.List.NonEmpty(NonEmpty((:|)))
 import Data.Maybe(listToMaybe, Maybe(Just, Nothing))
 import Data.Monoid(Monoid(mappend, mempty))
 import Data.Ord(Ord((<)), min, max)
 import Data.Semigroup(Semigroup((<>)))
+import Data.Semigroup.Foldable
 import Data.Tuple(fst, snd)
 import Data.Word(Word)
 import Prelude(Show, Integral, Integer, (-), (+), (*), fromIntegral)
+import Whole
 
 newtype Natural =
   Natural
@@ -56,13 +51,13 @@ newtype Natural =
 
 instance Semigroup Natural where
   Natural x <> Natural y =
-    Natural (x + y)
+    Natural (x * y)
 
 instance Monoid Natural where
   mappend =
     (<>)
   mempty =
-    Natural 0
+    Natural 1
 
 class HasNatural a where
   natural ::
@@ -92,7 +87,7 @@ integralPrism ::
 integralPrism =
   prism'
     (\(Natural n) -> fromIntegral n)
-    (\n -> if n < 0 then Nothing else Just (Natural (fromIntegral n)))
+    (\n -> if n < 1 then Nothing else Just (Natural (fromIntegral n)))
 
 instance AsNatural Int where
   _Natural =
@@ -114,38 +109,32 @@ instance Integral a => AsNatural (Identity a) where
   _Natural =
     integralPrism
 
-newtype ProductNatural =
-  ProductNatural
+newtype SumNatural =
+  SumNatural
     Natural
   deriving (Eq, Ord, Show)
 
-instance HasNatural ProductNatural where
+instance HasNatural SumNatural where
   natural =
     _Wrapped . natural
 
-instance AsNatural ProductNatural where
+instance AsNatural SumNatural where
   _Natural =
     _Wrapped . _Natural
 
-instance ProductNatural ~ a =>
-  Rewrapped ProductNatural a
+instance SumNatural ~ a =>
+  Rewrapped SumNatural a
   
-instance Wrapped ProductNatural where
-  type Unwrapped ProductNatural = Natural
+instance Wrapped SumNatural where
+  type Unwrapped SumNatural = Natural
   _Wrapped' =
     iso
-      (\(ProductNatural x) -> x)
-      ProductNatural
+      (\(SumNatural x) -> x)
+      SumNatural
 
-instance Semigroup ProductNatural where
-  ProductNatural (Natural x) <> ProductNatural (Natural y) =
-    ProductNatural (Natural (x * y))
-
-instance Monoid ProductNatural where
-  mappend =
-    (<>)
-  mempty =
-    ProductNatural (Natural 1)
+instance Semigroup SumNatural where
+  SumNatural (Natural x) <> SumNatural (Natural y) =
+    SumNatural (Natural (x + y))
 
 newtype MaxNatural =
   MaxNatural
@@ -201,20 +190,6 @@ instance Semigroup MinNatural where
   MinNatural (Natural x) <> MinNatural (Natural y) =
     MinNatural (Natural (x `min` y))
 
-zero ::
-  Prism'
-    Natural
-    ()
-zero =
-  prism'
-    (\() -> Natural 0)
-    (\(Natural n) -> if n == 0 then Nothing else Just ())
-
-zero' ::
-  Natural
-zero' =
-  zero # ()
-
 one ::
   Prism'
     Natural
@@ -236,7 +211,7 @@ successor ::
 successor =
   prism'
     (\(Natural n) -> Natural (n + 1))
-    (\(Natural n) -> if n == 0 then Nothing else Just (Natural (n - 1)))
+    (\(Natural n) -> if n == 1 then Nothing else Just (Natural (n - 1)))
 
 successor' ::
   Natural
@@ -245,11 +220,11 @@ successor' =
   (successor #)
 
 length ::
-  Foldable f =>
+  Foldable1 f =>
   f a
   -> Natural
-length =
-  foldl (const . successor') zero'
+length x =
+  foldMap1 (\_ -> SumNatural one') x ^. _Wrapped
 
 replicate ::
   Natural
@@ -257,6 +232,21 @@ replicate ::
   -> [a]
 replicate n =
   take n . repeat
+
+take' ::
+  Natural
+  -> NonEmpty a
+  -> NonEmpty a
+take' n (h:|t) =
+  undefined
+  {-
+  case n ^? successor of
+    Nothing ->
+      []
+    Just p ->
+      h :| take' p t
+  -}
+
 
 take ::
   Natural
@@ -300,48 +290,20 @@ splitAt n x =
 (_:t) !! n =
   (n ^? successor) >>= (t !!)
 
-findIndices ::
-  (a -> Bool)
-  -> [a]
-  -> [Natural]
-findIndices p x =
-  map snd (filter (p . fst) (zip x (iterate successor' zero')))
-
-findIndex ::
-  (a -> Bool)
-  -> [a]
-  -> Maybe Natural
-findIndex p =
-  listToMaybe . findIndices p
-
-elemIndices ::
-  Eq a =>
-  a
-  -> [a]
-  -> [Natural]
-elemIndices =
-  findIndices . (==)
-
-elemIndex ::
-  Eq a =>
-  a
-  -> [a]
-  -> Maybe Natural
-elemIndex =
-  findIndex . (==)
-
 minus ::
   Natural
   -> Natural
   -> Natural
 minus (Natural x) (Natural y) =
-  Natural (if x < y then 0 else x - y)
+  Natural (if x < y then 1 else x - y)
 
-list ::
+list1 ::
   Iso'
     Natural
-    [()]
-list =
+    (NonEmpty ())
+list1 =
   iso
-    (\n -> replicate n ())
-    length
+    undefined -- (\n -> replicate n ())
+    undefined -- (foldl (const . successor') one')
+
+undefined = undefined
