@@ -7,6 +7,7 @@ let
 
   modifiedHaskellPackages = haskellPackages.override {
     overrides = self: super: {
+      concurrent-output = pkgs.haskell.lib.doJailbreak super.concurrent-output;
     };
   };
 
