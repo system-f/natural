@@ -1,12 +1,12 @@
-{ mkDerivation, base, checkers, hedgehog, lens, QuickCheck, stdenv
-, tasty, tasty-hedgehog, tasty-hunit, tasty-quickcheck
-, transformers
+{ mkDerivation, base, checkers, hedgehog, lens, QuickCheck
+, semigroupoids, stdenv, tasty, tasty-hedgehog, tasty-hunit
+, tasty-quickcheck, transformers
 }:
 mkDerivation {
   pname = "natural";
-  version = "0.1.0.1";
+  version = "0.3.0.3";
   src = ./.;
-  libraryHaskellDepends = [ base lens ];
+  libraryHaskellDepends = [ base lens semigroupoids ];
   testHaskellDepends = [
     base checkers hedgehog lens QuickCheck tasty tasty-hedgehog
     tasty-hunit tasty-quickcheck transformers
