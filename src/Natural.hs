@@ -14,6 +14,10 @@ module Natural (
 , zero'
 , successor
 , successor'
+, plus
+, multiply
+, square
+, zeroOr
 , length
 , replicate
 , take
@@ -37,6 +41,10 @@ module Natural (
 , successor1
 , successor1'
 , successorW
+, plus1
+, multiply1
+, square1
+, oneOr
 , notZero
 , length1
 , replicate1
@@ -50,6 +58,8 @@ module Natural (
 , elemIndex1
 , minus1
 , list1
+, plusone
+, minusone
 ) where
 
 import Control.Applicative(Const)
@@ -65,14 +75,14 @@ import Data.Int(Int)
 import Data.List(iterate, zip, filter, map, repeat)
 import Data.List.NonEmpty(NonEmpty((:|)))
 import qualified Data.List.NonEmpty as NonEmpty(iterate, zip, filter)
-import Data.Maybe(listToMaybe, Maybe(Just, Nothing))
+import Data.Maybe(listToMaybe, Maybe(Just, Nothing), fromMaybe)
 import Data.Monoid(Monoid(mappend, mempty))
 import Data.Ord(Ord((<)), min, max)
 import Data.Semigroup(Semigroup((<>)))
 import Data.Semigroup.Foldable(Foldable1(foldMap1))
 import Data.Tuple(fst, snd)
 import Data.Word(Word)
-import Prelude(Show, Integral, Integer, (-), (+), (*), fromIntegral)
+import Prelude(Show, Integral, Integer, (-), (+), (*), (^), fromIntegral)
 
 newtype Natural =
   Natural
@@ -254,6 +264,34 @@ successor' ::
   -> Natural
 successor' =
   (successor #)
+
+plus ::
+  Natural
+  -> Natural
+  -> Natural
+plus =
+  (<>)
+
+multiply ::
+  Natural
+  -> Natural
+  -> Natural
+multiply x y =
+  (_Wrapped # x <> (_Wrapped # y :: ProductNatural)) ^. _Wrapped
+
+square ::
+  Natural
+  -> Natural
+  -> Natural
+square (Natural x) (Natural y) =
+  Natural (x ^ y)
+
+zeroOr ::
+  AsNatural a =>
+  a
+  -> Natural
+zeroOr n =
+  fromMaybe zero' (n ^? _Natural)
 
 length ::
   Foldable f =>
@@ -543,6 +581,34 @@ successorW =
     (\(Natural n) -> Positive (n + 1))
     (\(Positive n) -> Natural (n - 1))
 
+plus1 ::
+  Positive
+  -> Positive
+  -> Positive
+plus1 x y =
+  (_Wrapped # x <> (_Wrapped # y :: SumPositive)) ^. _Wrapped
+
+multiply1 ::
+  Positive
+  -> Positive
+  -> Positive
+multiply1 =
+  (<>)
+
+square1 ::
+  Positive
+  -> Positive
+  -> Positive
+square1 (Positive x) (Positive y) =
+  Positive (x ^ y)
+
+oneOr ::
+  AsPositive a =>
+  a
+  -> Positive
+oneOr n =
+  fromMaybe one' (n ^? _Positive)
+
 notZero ::
   Prism'
     Natural
@@ -639,3 +705,15 @@ list1 =
   iso
     (\n -> replicate1 n ())
     length1
+
+plusone ::
+  Natural
+  -> Positive
+plusone =
+  (^. successorW)
+
+minusone ::
+  Positive
+  -> Natural
+minusone =
+  (successorW #)

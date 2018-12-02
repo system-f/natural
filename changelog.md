@@ -1,3 +1,7 @@
+0.3.0.3
+
+* added some more functions.
+
 0.3.0.2
 
 * fix bug in `zero` and `one` prisms.
