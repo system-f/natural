@@ -36,6 +36,8 @@ module Natural (
 , SumPositive(..)
 , MaxPositive(..)
 , MinPositive(..)
+, naturalPositive
+, positiveNatural
 , one
 , one'
 , successor1
@@ -542,6 +544,27 @@ instance Wrapped MinPositive where
 instance Semigroup MinPositive where
   MinPositive (Positive x) <> MinPositive (Positive y) =
     MinPositive (Positive (x `min` y))
+
+naturalPositive ::
+  Iso' Natural (Maybe Positive)
+naturalPositive =
+  iso
+    (\(Natural n) ->
+        if n == 0 then Nothing else Just (Positive n))
+    (\x ->  Natural (
+              case x of
+                Nothing ->
+                  0
+                Just (Positive n) ->
+                  n)
+            )
+
+positiveNatural ::
+  Prism' Natural Positive
+positiveNatural =
+  prism'
+    (\(Positive n) -> Natural n)
+    (\(Natural n) -> if n == 0 then Nothing else Just (Positive n))
 
 one ::
   Prism'

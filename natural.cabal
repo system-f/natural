@@ -1,7 +1,7 @@
 -- documentation, see http://haskell.org/cabal/users-guide/
 
 name:                natural
-version:             0.3.0.3
+version:             0.3.0.4
 synopsis:            Natural number
 description:       
   <<http://i.imgur.com/uZnp9ke.png>>

@@ -1,3 +1,7 @@
+0.3.0.4
+
+* add `naturalPositive` iso and `positiveNatural` prism.
+
 0.3.0.3
 
 * added some more functions.
