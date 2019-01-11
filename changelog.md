@@ -1,6 +1,6 @@
 0.3.0.4
 
-* add `naturalPositive` iso and `positiveNatural` prism.
+* add `naturalPositive` iso and `instance AsPositive Natural` prism.
 
 0.3.0.3
 

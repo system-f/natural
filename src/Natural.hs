@@ -37,7 +37,6 @@ module Natural (
 , MaxPositive(..)
 , MinPositive(..)
 , naturalPositive
-, positiveNatural
 , one
 , one'
 , successor1
@@ -559,12 +558,11 @@ naturalPositive =
                   n)
             )
 
-positiveNatural ::
-  Prism' Natural Positive
-positiveNatural =
-  prism'
-    (\(Positive n) -> Natural n)
-    (\(Natural n) -> if n == 0 then Nothing else Just (Positive n))
+instance AsPositive Natural where
+  _Positive =
+    prism'
+      (\(Positive n) -> Natural n)
+      (\(Natural n) -> if n == 0 then Nothing else Just (Positive n))
 
 one ::
   Prism'
