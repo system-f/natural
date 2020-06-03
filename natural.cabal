@@ -4,25 +4,25 @@ name:                natural
 version:             0.3.0.5
 synopsis:            Natural number
 description:       
-  <<https://raw.githubusercontent.com/qfpl/assets/master/data61-transparent-bg.png>>
+  <<https://system-f.gitlab.io/logo/systemf-450x450.jpg>>
   .
   Natural number
 license:             BSD3
 license-file:        LICENCE
 author:              Queensland Functional Programming Lab <oᴉ˙ldɟb@llǝʞsɐɥ>
 maintainer:          Queensland Functional Programming Lab <oᴉ˙ldɟb@llǝʞsɐɥ>
-copyright:           Copyright (C) 2018 Commonwealth Scientific and Industrial Research Organisation (CSIRO)
+copyright:           Copyright (C) 2020 System F
 category:            Control
 build-type:          Simple
 extra-source-files:  changelog.md
 cabal-version:       >=1.10
-homepage:            https://github.com/qfpl/natural
-bug-reports:         https://github.com/qfpl/natural/issues
+homepage:            https://github.com/system-f/natural
+bug-reports:         https://github.com/system-f/natural/issues
 tested-with:         GHC == 7.10.3, GHC == 8.0.2, GHC == 8.2.2, GHC == 8.4.3, GHC == 8.6.1, GHC == 8.8.1, GHC == 8.6.5, GHC == 8.10.1
 
 source-repository   head
   type:             git
-  location:         git@github.com:qfpl/natural.git
+  location:         git@github.com:system-f/natural.git
 
 library
   exposed-modules:     Natural
