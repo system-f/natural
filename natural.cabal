@@ -1,7 +1,7 @@
 -- documentation, see http://haskell.org/cabal/users-guide/
 
 name:                natural
-version:             0.3.0.4
+version:             0.3.0.5
 synopsis:            Natural number
 description:       
   <<http://i.imgur.com/uZnp9ke.png>>
@@ -18,7 +18,7 @@ extra-source-files:  changelog.md
 cabal-version:       >=1.10
 homepage:            https://github.com/qfpl/natural
 bug-reports:         https://github.com/qfpl/natural/issues
-tested-with:         GHC == 7.10.3, GHC == 8.0.2, GHC == 8.2.2, GHC == 8.4.3, GHC == 8.6.1
+tested-with:         GHC == 7.10.3, GHC == 8.0.2, GHC == 8.2.2, GHC == 8.4.3, GHC == 8.6.1, GHC == 8.6.5, GHC == 8.10.1
 
 source-repository   head
   type:             git
@@ -26,27 +26,27 @@ source-repository   head
 
 library
   exposed-modules:     Natural
-  build-depends:       base >=4.8 && <4.13
-                     , lens >=4.15 && < 4.18
-                     , semigroupoids >= 5 && < 6
+  build-depends:       base >=4.8 && <5
+                     , lens >=4.15 && <4.20
+                     , semigroupoids >= 5 && <6
   hs-source-dirs:      src
   default-language:    Haskell2010
   ghc-options:         -Wall
   if impl(ghc<8.0.1)
-    build-depends:     semigroups >= 0.9 && < 0.19
+    build-depends:     semigroups >= 0.9 && <6
 
 test-suite             tests
-  build-depends:       QuickCheck >=2.9.2 && <2.13
-                     , base >=4.8 && <4.13
-                     , checkers >=0.4.6 && <0.5
+  build-depends:       QuickCheck >=2.9.2 && <2.15
+                     , base >=4.8 && <5
+                     , checkers >=0.4.6 && <0.6
                      , natural
-                     , hedgehog >=0.5 && <0.7
-                     , lens >=4.15 && <4.18
-                     , tasty >=0.11 && <1.2
+                     , hedgehog >=0.5 && <1.1
+                     , lens >=4.15 && <4.20
+                     , tasty >=0.11 && <1.3
                      , tasty-hunit >=0.9 && <0.11
-                     , tasty-hedgehog >= 0.1 && <0.3
+                     , tasty-hedgehog >= 0.1 && <1.1
                      , tasty-quickcheck >=0.8.4 && <0.11
-                     , transformers >=0.4.1 && <5.5
+                     , transformers >=0.4.1 && <0.6
   type:                exitcode-stdio-1.0
   main-is:             Tests.hs
   hs-source-dirs:      test

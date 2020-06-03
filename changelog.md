@@ -1,3 +1,7 @@
+0.3.0.5
+
+* Support GHC 8.10.1.
+
 0.3.0.4
 
 * add `naturalPositive` iso and `instance AsPositive Natural` prism.

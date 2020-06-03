@@ -4,7 +4,7 @@
 }:
 mkDerivation {
   pname = "natural";
-  version = "0.3.0.4";
+  version = "0.3.0.5";
   src = ./.;
   libraryHaskellDepends = [ base lens semigroupoids ];
   testHaskellDepends = [
