@@ -1,9 +1,9 @@
 -- documentation, see http://haskell.org/cabal/users-guide/
 
 name:                natural
-version:             0.3.0.5
+version:             0.3.0.6
 synopsis:            Natural number
-description:       
+description:
   <<https://system-f.gitlab.io/logo/systemf-450x450.jpg>>
   .
   Natural number
@@ -27,7 +27,7 @@ source-repository   head
 library
   exposed-modules:     Natural
   build-depends:       base >=4.8 && <5
-                     , lens >=4.15 && <4.20
+                     , lens >=4.15 && <5.2
                      , semigroupoids >= 5 && <6
   hs-source-dirs:      src
   default-language:    Haskell2010
@@ -41,7 +41,7 @@ test-suite             tests
                      , checkers >=0.4.6 && <0.6
                      , natural
                      , hedgehog >=0.5 && <1.1
-                     , lens >=4.15 && <4.20
+                     , lens >=4.15 && <5.2
                      , tasty >=0.11 && <1.3
                      , tasty-hunit >=0.9 && <0.11
                      , tasty-hedgehog >= 0.1 && <1.1
