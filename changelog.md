@@ -1,3 +1,7 @@
+0.3.0.7
+
+* Update version bounds
+
 0.3.0.6
 
 * Support `lens` up to `5.1`
