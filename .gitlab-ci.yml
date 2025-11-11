@@ -1,0 +1,23 @@
+image: haskell:9.4.8
+
+before_script:
+  - cabal update
+
+build:
+  script:
+    - cabal update
+    - cabal build
+  except:
+    - master
+
+pages:
+  script:
+    - cabal update
+    - cabal build
+    - mkdir public
+    - cp -r dist-newstyle/build/* public
+  artifacts:
+    paths:
+      - public
+  only:
+    - master

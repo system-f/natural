@@ -2,6 +2,7 @@
 {-# LANGUAGE FlexibleInstances #-}
 {-# LANGUAGE MultiParamTypeClasses #-}
 {-# LANGUAGE TypeFamilies #-}
+{-# LANGUAGE TypeOperators #-}
 
 module Natural (
   Natural
@@ -165,7 +166,7 @@ instance AsNatural ProductNatural where
 
 instance ProductNatural ~ a =>
   Rewrapped ProductNatural a
-  
+
 instance Wrapped ProductNatural where
   type Unwrapped ProductNatural = Natural
   _Wrapped' =
@@ -198,7 +199,7 @@ instance AsNatural MaxNatural where
 
 instance MaxNatural ~ a =>
   Rewrapped MaxNatural a
-  
+
 instance Wrapped MaxNatural where
   type Unwrapped MaxNatural = Natural
   _Wrapped' =
@@ -225,7 +226,7 @@ instance AsNatural MinNatural where
 
 instance MinNatural ~ a =>
   Rewrapped MinNatural a
-  
+
 instance Wrapped MinNatural where
   type Unwrapped MinNatural = Natural
   _Wrapped' =
@@ -478,7 +479,7 @@ instance AsPositive SumPositive where
 
 instance SumPositive ~ a =>
   Rewrapped SumPositive a
-  
+
 instance Wrapped SumPositive where
   type Unwrapped SumPositive = Positive
   _Wrapped' =
@@ -505,7 +506,7 @@ instance AsPositive MaxPositive where
 
 instance MaxPositive ~ a =>
   Rewrapped MaxPositive a
-  
+
 instance Wrapped MaxPositive where
   type Unwrapped MaxPositive = Positive
   _Wrapped' =
@@ -532,7 +533,7 @@ instance AsPositive MinPositive where
 
 instance MinPositive ~ a =>
   Rewrapped MinPositive a
-  
+
 instance Wrapped MinPositive where
   type Unwrapped MinPositive = Positive
   _Wrapped' =
@@ -687,7 +688,7 @@ findIndices1 ::
   -> [Positive]
 findIndices1 p x =
   map snd (NonEmpty.filter (p . fst) (NonEmpty.zip x (NonEmpty.iterate successor1' one')))
-  
+
 findIndex1 ::
   (a -> Bool)
   -> NonEmpty a
