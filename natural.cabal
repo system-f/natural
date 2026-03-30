@@ -16,7 +16,7 @@ build-type:           Simple
 extra-doc-files:      changelog.md
 homepage:             https://github.com/system-f/natural
 bug-reports:          https://github.com/system-f/natural/issues
-tested-with:          GHC == 7.10.3, GHC == 8.0.2, GHC == 8.2.2, GHC == 8.4.3, GHC == 8.6.1, GHC == 8.8.1, GHC == 8.6.5, GHC == 8.10.1, GHC == 9.4.8
+tested-with:          GHC == 7.10.3, GHC == 8.0.2, GHC == 8.2.2, GHC == 8.4.3, GHC == 8.6.1, GHC == 8.8.1, GHC == 8.6.5, GHC == 8.10.1, GHC == 9.4.8, GHC == 9.6.7, GHC == 9.8.4
 
 source-repository   head
   type:             git
