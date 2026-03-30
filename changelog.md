@@ -1,3 +1,16 @@
+0.4.0.0
+
+* Add `ToJSON` and `FromJSON` instances for `Natural`, `Positive`, and all newtype wrappers (`ProductNatural`, `MaxNatural`, `MinNatural`, `SumPositive`, `MaxPositive`, `MinPositive`).
+* Add `toJsonNatural`, `parseJsonNatural`, `toJsonPositive`, `parseJsonPositive` functions.
+* Add `aeson` dependency.
+* Rename `square` to `power` and `square1` to `power1`.
+* Fix `(!!)` which previously returned `Nothing` for all inputs.
+* Fix `(!!!)` which previously returned `Nothing` for all inputs.
+* Fix `multiply1` which was performing addition instead of multiplication.
+* Fix `minus1` off-by-one when arguments are equal.
+* Remove invalid `Monoid Positive` instance (`mempty` was `Positive 0`).
+* Add Haddock documentation and doctests.
+
 0.3.0.7
 
 * Update version bounds
