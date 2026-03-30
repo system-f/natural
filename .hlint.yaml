@@ -1,0 +1,10 @@
+# HLint configuration for the natural library
+
+# Restrict partial and unsafe functions
+- functions:
+  - {name: "unsafePerformIO", within: []}
+  - {name: "unsafeCoerce", within: []}
+  - {name: "error", within: []}
+  - {name: "undefined", within: []}
+  - {name: "head", within: []}
+  - {name: "tail", within: []}

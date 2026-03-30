@@ -1,20 +1,42 @@
 image: haskell:9.4.8
 
+stages:
+  - build
+  - test
+  - lint
+  - pages
+
 before_script:
   - cabal update
 
 build:
+  stage: build
   script:
-    - cabal update
     - cabal build
-  except:
-    - master
+
+test:
+  stage: test
+  script:
+    - cabal test
+
+hlint:
+  stage: lint
+  script:
+    - cabal install hlint --install-method=copy --overwrite-policy=always
+    - hlint src
+
+ormolu:
+  stage: lint
+  script:
+    - cabal install ormolu --install-method=copy --overwrite-policy=always
+    - ormolu --mode check src/Natural.hs
 
 pages:
+  stage: pages
   script:
-    - cabal update
     - cabal build
-    - mkdir public
+    - cabal haddock
+    - mkdir -p public
     - cp -r dist-newstyle/build/* public
   artifacts:
     paths:
